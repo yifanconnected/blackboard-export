@@ -12,9 +12,12 @@ from getpass import getpass
 from os import path, makedirs
 import functools
 
-BB_DOMAIN = 'https://blackboard.utexas.edu'
+from bs4 import BeautifulSoup
+import base64
+
+BB_DOMAIN = 'https://bb.cuhk.edu.cn'
 BB_MOBILE_API = BB_DOMAIN + '/webapps/Bb-mobile-BBLEARN'
-LOGIN_URL = 'https://blackboard.utexas.edu/webapps/login/'
+LOGIN_URL = 'https://bb.cuhk.edu.cn/webapps/login/'
 COURSES_URL = BB_MOBILE_API + '/enrollments?course_type=COURSE'
 COURSE_MAP_URL = BB_MOBILE_API + '/courseMap'
 COURSE_DATA_URL = BB_MOBILE_API + '/courseData'
@@ -299,11 +302,31 @@ def main():
     makedirs(XML_CACHE_PATH)
 
     session = requests.Session()
+    # generate payload
+    login_page = session.get(LOGIN_URL)
+    login_page_content = BeautifulSoup(login_page.content, features='html5lib')
+    one_time_token = login_page_content.find('input', attrs={'name':'one_time_token'})['value']
+    tstring = login_page_content.find('input', attrs={'name':'tstring'})['value']
+    b64pwd = base64.b64encode(user_password.encode('ascii'))
+    b64unicode = ''
+
     # authenticate the session
     print('Authenticating')
     session.post(LOGIN_URL, data={
-        'user_id': user_eid,
-        'password': user_password})
+        #'action': 'login',
+        #'auth_type': '',
+        #'encoded_pw': b64pwd,
+        #'encoded_pw_unicode': b64unicode,
+        #'login': 'LOGIN',
+        #'message': 'null',
+        #'new_loc': 'null',
+        #'one_time_token': one_time_token,
+        #'passwd': '',
+        #'password': '',
+        'pstring': b64pwd,
+        #'remote_user':'',
+        'tstring': tstring,
+        'user_id': user_eid})
 
     # get courses user has been enrolled in
     print('Getting course list')
