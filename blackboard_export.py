@@ -304,7 +304,7 @@ def main():
     session = requests.Session()
     # generate payload
     login_page = session.get(LOGIN_URL)
-    login_page_content = BeautifulSoup(login_page.content, features='html5lib')
+    login_page_content = BeautifulSoup(login_page.content)
     one_time_token = login_page_content.find('input', attrs={'name':'one_time_token'})['value']
     tstring = login_page_content.find('input', attrs={'name':'tstring'})['value']
     b64pwd = base64.b64encode(user_password.encode('ascii'))
