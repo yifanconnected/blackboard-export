@@ -1,7 +1,7 @@
 # blackboard-export
 
-Dump all listed resource/x-bb-file from user-specified courses
-using Blackboard Learn APIs. Works for CUHK(SZ).
+Dump all listed 'x-bb-file' and 'x-bb-document' attachments from a list of
+user-specified courses using Blackboard Learn APIs. Works for CUHK(SZ).
 
 ## Dependencies
 
@@ -15,7 +15,7 @@ Specify EXPORT_PATH. By default, all files will be dumped to 'new_courses'
 Specify COURSES. It should be a list of course_id, which can be found in course URL. If you don't specify this the script will do nothing.
 
 ```python
-COURSES = ['237_1', '245_1', '110_1', '113_1', '_112_1']
+COURSES = ['_110_1', '_115_1', '_237_1', '_245_1', '_113_1']
 ```
 
 TODO: Automate this process.

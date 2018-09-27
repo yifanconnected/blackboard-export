@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Dump all listed resource/x-bb-file from user-specified courses
-using Blackboard Learn APIs. Works for CUHK(SZ).
+"""Dump all listed 'x-bb-file' and 'x-bb-document' attachments from a list of
+user-specified courses using Blackboard Learn APIs. Works for CUHK(SZ).
 """
 
 from getpass import getpass
@@ -22,15 +22,15 @@ CHILDREN_URL = SPECIFIC_COURSE_URL + '{}/contents/{}/children?courseId={}&conten
 ATTACHMENTS_URL = SPECIFIC_COURSE_URL + '{}/contents/{}/attachments?courseId={}&contentId={}'
 ATTACHMENT_DL_URL = SPECIFIC_COURSE_URL + '{}/contents/{}/attachments/{}/download\
 ?courseId={}&contentId={}&attachmentId={}'
+VALID_PATH_CHAR_MAP = str.maketrans(r':\|/<>"?*', "------'--")
 
 EXPORT_PATH = 'new_courses'
-#COURSES = ['_237_1', '_245_1', '_110_1', '_113_1', '_112_1']
-COURSES = []
+COURSES=[]
 
 makedirs = functools.partial(os.makedirs, exist_ok=True)
 
 def auth():
-    user_eid = input('Username:')
+    user_eid = input('Student ID:')
     user_password = getpass('Password:')
 
     session = requests.Session()
@@ -58,11 +58,11 @@ def logged_in(session):
 
 def dl(session, current_path, cid, oid, attachments):
     for object in attachments:
-        attachment_path = os.path.join(current_path, object['fileName'])
+        attachment_path = os.path.join(current_path, object['fileName'].translate(VALID_PATH_CHAR_MAP))
         try:
             with open(attachment_path, 'xb') as destination:
                 download = session.get(ATTACHMENT_DL_URL.format(cid, oid, object['id'], cid, oid, object['id']))
-                print('  Get:', object['fileName'])
+                print('  Get:', object['fileName'], '++++++++++++++++++++++++++++++')
                 destination.write(download.content)
         except FileExistsError:
             # file already exists, don't download again
@@ -75,13 +75,13 @@ def dfs(session, current_path, cid, results):
         #has_children = object['hasChildren'] # Bool
         available = object['availability']['available'] # str: 'Yes' or 'No'
         if available == 'Yes' and obj_type == 'resource/x-bb-folder': # TO DO; Learing-unit
-            new_path = os.path.join(current_path, object['title'])
+            new_path = os.path.join(current_path, object['title'].translate(VALID_PATH_CHAR_MAP))
             makedirs(new_path)
             print(' Entering', object['title'])
             children_raw = session.get(CHILDREN_URL.format(cid, object['id'], cid, object['id']))
             children = json.loads(children_raw.content)['results']
             dfs(session, new_path, cid, children)
-        if available == 'Yes' and obj_type == 'resource/x-bb-file':
+        if available == 'Yes' and obj_type in ['resource/x-bb-file', 'resource/x-bb-document']:#, 'resource/x-bb-assignment']:
             attachments_raw = session.get(ATTACHMENTS_URL.format(cid, object['id'], cid, object['id']))
             attachments = json.loads(attachments_raw.content)['results']
             dl(session, current_path, cid, object['id'], attachments)
@@ -96,7 +96,7 @@ def main():
     for course in COURSES:
         course_info_raw = session.get(SPECIFIC_COURSE_URL + course, params={'courseId': course})
         course_info = json.loads(course_info_raw.content)
-        course_path = os.path.join(EXPORT_PATH, course_info['name'])
+        course_path = os.path.join(EXPORT_PATH, course_info['name'].translate(VALID_PATH_CHAR_MAP))
         print('Searching', course_info['name'])
         # make directory for course
         makedirs(course_path)
@@ -104,7 +104,7 @@ def main():
         course_contents_raw = session.get(CONTENTS_URL.format(course,course))
         course_contents = json.loads(course_contents_raw.content)['results']
         dfs(session, course_path, course, course_contents)
-    print('Exit')
+    print('Completed')
 
 if __name__ == "__main__":
     main()
