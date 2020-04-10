@@ -13,7 +13,8 @@ import functools
 
 BB_DOMAIN = 'https://bb.cuhk.edu.cn'
 BB_MOBILE_API = BB_DOMAIN + '/webapps/Bb-mobile-BBLEARN'
-LOGIN_URL = BB_DOMAIN + '/webapps/login/'
+LOGIN_URL_LEGACY = BB_DOMAIN + '/webapps/login/'
+LOGIN_URL_NEW = BB_DOMAIN + '/webapps/bb-SSOIntegrationDemo-BBLEARN/execute/authValidate/customLogin?returnUrl=https://bb.cuhk.edu.cn/webapps/portal/execute/defaultTab&authProviderId=_122_1'
 COURSES_URL = BB_MOBILE_API + '/enrollments?course_type=COURSE'
 SPECIFIC_COURSE_URL = BB_DOMAIN + '/learn/api/public/v1/courses/'
 CONTENTS_URL = SPECIFIC_COURSE_URL + '{}/contents?courseId={}'
@@ -25,8 +26,7 @@ ATTACHMENT_DL_URL = SPECIFIC_COURSE_URL + '{}/contents/{}/attachments/{}/downloa
 VALID_PATH_CHAR_MAP = str.maketrans(r':\|/<>"?*', "------'--")
 
 EXPORT_PATH = 'new_courses'
-COURSES=[]
-
+COURSES=['************CHANGE ME************']
 makedirs = functools.partial(os.makedirs, exist_ok=True)
 
 def auth():
@@ -35,12 +35,12 @@ def auth():
 
     session = requests.Session()
     # generate payload
-    login_page = session.get(LOGIN_URL)
+    login_page = session.get(LOGIN_URL_LEGACY)
     login_page_content = BeautifulSoup(login_page.content, 'html.parser')
     tstring = login_page_content.find('input', attrs={'name':'tstring'})['value']
     b64pwd = base64.b64encode(user_password.encode('ascii'))
     # authenticate the session
-    session.post(LOGIN_URL, data={
+    session.post(LOGIN_URL_NEW, data={
         'pstring': b64pwd,
         'tstring': tstring,
         'user_id': user_eid})
