@@ -1,7 +1,10 @@
 # blackboard-export
 
-Dump all listed 'x-bb-file' and 'x-bb-document' attachments from a list of
-user-specified courses using Blackboard Learn APIs. Works for CUHK(SZ).
+Dump all listed 'x-bb-file' and 'x-bb-document' attachments from a list of user-specified courses using Blackboard Learn APIs. Works for CUHK(SZ).
+
+## Update
+
+In April 2020, ITSO changed the backend for user authentication. The script has been updated to accomodate the change.
 
 ## Dependencies
 
@@ -18,7 +21,7 @@ Specify COURSES. It should be a list of course_id, which can be found in course 
 COURSES = ['_110_1', '_115_1', '_237_1', '_245_1', '_113_1']
 ```
 
-TODO: Automate this process.
+~~TODO: Automate this process.~~ Because of the fact that Registry and ITSO no longer remove past courses for students (as they did to Moodle), please specify this by yourself to avoid downloading tons of files from past courses. ```#Save ITSO's Potato```
 
 ## Disclaimer
 
